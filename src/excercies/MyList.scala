@@ -1,6 +1,5 @@
 package excercies
 
-import scala.annotation.tailrec
 
 abstract sealed class MyList[+T] {
   def head: T
@@ -26,7 +25,7 @@ abstract sealed class MyList[+T] {
   override def toString: String = s"[${printElements()}]"
 }
 
-object EmptyList extends MyList[Nothing] {
+case object EmptyList extends MyList[Nothing] {
   override def head: Nothing = throw new NoSuchElementException
 
   override def tail: MyList[Nothing] = throw new NoSuchElementException
@@ -47,7 +46,7 @@ object EmptyList extends MyList[Nothing] {
   override def filter(p: MyPredicate[Nothing]): MyList[Nothing] = EmptyList
 }
 
-class Cons[+T](h: T, t: MyList[T] = EmptyList) extends MyList[T] {
+case class Cons[+T](h: T, t: MyList[T] = EmptyList) extends MyList[T] {
   override def add[S >: T](x: S): MyList[S] = new Cons[S](x, this)
 
   override def isEmpty(): Boolean = false
@@ -63,15 +62,15 @@ class Cons[+T](h: T, t: MyList[T] = EmptyList) extends MyList[T] {
   override def tail: MyList[T] = t
 
   override def map[B](t: MyTransformer[T, B]): MyList[B] = {
-    new Cons(t.transform(head), tail.map(t))
+    Cons(t.transform(head), tail.map(t))
   }
 
 
   override def filter(p: MyPredicate[T]): MyList[T] = {
-    if (p.test(head)) new Cons[T](h, tail.filter(p)) else tail.filter(p)
+    if (p.test(head)) Cons[T](h, tail.filter(p)) else tail.filter(p)
   }
 
-  override def ++[S >: T](x: MyList[S]): MyList[S] = new Cons[S](h, t ++ x)
+  override def ++[S >: T](x: MyList[S]): MyList[S] = Cons[S](h, t ++ x)
   override def flatmap[B](t: MyTransformer[T, MyList[B]]): MyList[B] = t.transform(head) ++ tail.flatmap(t)
 }
 
