@@ -33,4 +33,16 @@ object FunctionsExample extends App{
   callByName(System.nanoTime())
   callByName(System.nanoTime())
 
+  //curried function
+  def curried = (x:Int) ⇒ (y:Int) ⇒ x+y
+  println(curried(2)(3)) //2+3=5
+
+  def composeNtimes[D](f:D⇒D, n:Int):D⇒D ={
+    if(n<=0) (id:D)⇒ id
+    else (x:D) ⇒ composeNtimes(f,n-1)(f(x))
+  }
+  // p=p^2
+  def isIdempotent[D](p:D⇒D): Boolean = composeNtimes(p,2)==composeNtimes(p,1)
+
+
 }
