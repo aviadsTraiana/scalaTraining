@@ -8,11 +8,11 @@ abstract sealed class MyList[+T] {
 
   def isEmpty(): Boolean
 
-  def map[B](t: MyTransformer[T, B]): MyList[B]
+  def map[B](t: T ⇒ B): MyList[B]
 
-  def flatmap[B](t: MyTransformer[T, MyList[B]]): MyList[B]
+  def flatmap[B](transform: T ⇒ MyList[B]): MyList[B]
 
-  def filter(p: MyPredicate[T]): MyList[T]
+  def filter(p: T ⇒ Boolean): MyList[T]
 
   def add[S >: T](x: S): MyList[S]
 
@@ -39,11 +39,11 @@ case object EmptyList extends MyList[Nothing] {
 
   override def printElements(): String = " "
 
-  override def map[B](t: MyTransformer[Nothing, B]): MyList[B] = EmptyList
+  override def map[B](t: Nothing ⇒ B): MyList[B] = EmptyList
 
-  override def flatmap[B](t: MyTransformer[Nothing, MyList[B]]): MyList[B] = EmptyList
+  override def flatmap[B](transform: Nothing ⇒ MyList[B]): MyList[B] = EmptyList
 
-  override def filter(p: MyPredicate[Nothing]): MyList[Nothing] = EmptyList
+  override def filter(p: Nothing ⇒ Boolean): MyList[Nothing] = EmptyList
 }
 
 case class Cons[+T](h: T, t: MyList[T] = EmptyList) extends MyList[T] {
@@ -57,21 +57,21 @@ case class Cons[+T](h: T, t: MyList[T] = EmptyList) extends MyList[T] {
     else
       s"$head , ${tail.printElements()}"
 
+  override def map[B](t: T ⇒ B): MyList[B] = {
+    Cons(t(head), tail.map(t))
+  }
+
+  override def filter(predicate: T ⇒ Boolean): MyList[T] = {
+    if (predicate(head)) Cons[T](h, tail.filter(predicate)) else tail.filter(predicate)
+  }
+
   override def head: T = h
 
   override def tail: MyList[T] = t
 
-  override def map[B](t: MyTransformer[T, B]): MyList[B] = {
-    Cons(t.transform(head), tail.map(t))
-  }
-
-
-  override def filter(p: MyPredicate[T]): MyList[T] = {
-    if (p.test(head)) Cons[T](h, tail.filter(p)) else tail.filter(p)
-  }
-
   override def ++[S >: T](x: MyList[S]): MyList[S] = Cons[S](h, t ++ x)
-  override def flatmap[B](t: MyTransformer[T, MyList[B]]): MyList[B] = t.transform(head) ++ tail.flatmap(t)
+
+  override def flatmap[B](transform: T ⇒ MyList[B]): MyList[B] = transform.apply(head) ++ tail.flatmap(transform)
 }
 
 object TestList extends App {
@@ -79,18 +79,16 @@ object TestList extends App {
   val stringList: MyList[String] = EmptyList
   val emptyIntList: MyList[Int] = EmptyList
   val intList1 = new Cons[Int](1, new Cons[Int](2, new Cons[Int](3)))
-  val intList2= 4 :: 5 :: EmptyList
+  val intList2 = 4 :: 5 :: EmptyList
   println(intList1.add(0).head)
   println(intList2.tail.head)
   //println(list.tail.tail.tail.head) // throws NoSuchElementException
   val combined = intList1 ++ intList2
   println("aviad" :: "shahar" :: EmptyList)
   println(combined)
-  println(combined.map(x ⇒ x*2 ))
+  println(combined.map(x ⇒ x * 2))
   //creates a list of (n,n+1) for each element
-  println(combined.flatmap( x ⇒ x:: x+1 :: EmptyList))
-
-
+  println(combined.flatmap(x ⇒ x :: x + 1 :: EmptyList))
 
 
 }
