@@ -37,12 +37,23 @@ object FunctionsExample extends App{
   def curried = (x:Int) ⇒ (y:Int) ⇒ x+y
   println(curried(2)(3)) //2+3=5
 
+  // f , n f(f(f(x)))
   def composeNtimes[D](f:D⇒D, n:Int):D⇒D ={
     if(n<=0) (id:D)⇒ id
     else (x:D) ⇒ composeNtimes(f,n-1)(f(x))
   }
   // p=p^2
-  def isIdempotent[D](p:D⇒D): Boolean = composeNtimes(p,2)==composeNtimes(p,1)
+  def isIdempotent[D](p:D⇒D): Boolean = {
+    composeNtimes(p, 2) == composeNtimes(p, 1)
+  }
+
+  def curriedFormatter(c:String)(x:Double) : String = c.format(x)
+
+  def standardFormatter : Double ⇒ String = curriedFormatter("%4.2f")
+  def preciseFormatter : Double ⇒ String = curriedFormatter("%10.8f")
+
+  println(standardFormatter(Math.PI))
+  println(preciseFormatter(Math.PI))
 
 
 }
