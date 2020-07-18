@@ -8,9 +8,7 @@ abstract sealed class MyList[+T] {
   def isEmpty: Boolean
 
   def map[B](t: T ⇒ B): MyList[B]
-
-  def flatmap[B](transform: T ⇒ MyList[B]): MyList[B]
-
+  def flatMap[B](transform: T ⇒ MyList[B]): MyList[B]
   def filter(p: T ⇒ Boolean): MyList[T]
 
   def zipWith[S, R](otherList: MyList[S], zip: (T, S) ⇒ R): MyList[R]
@@ -47,7 +45,7 @@ case object EmptyList extends MyList[Nothing] {
 
   override def map[B](t: Nothing ⇒ B): MyList[B] = EmptyList
 
-  override def flatmap[B](transform: Nothing ⇒ MyList[B]): MyList[B] = EmptyList
+  override def flatMap[B](transform: Nothing ⇒ MyList[B]): MyList[B] = EmptyList
 
   override def filter(p: Nothing ⇒ Boolean): MyList[Nothing] = EmptyList
 
@@ -66,6 +64,7 @@ case object EmptyList extends MyList[Nothing] {
 }
 
 case class Cons[+T](h: T, t: MyList[T] = EmptyList) extends MyList[T] {
+
   override def add[S >: T](x: S): MyList[S] = new Cons[S](x, this)
 
   override def isEmpty: Boolean = false
@@ -91,8 +90,8 @@ case class Cons[+T](h: T, t: MyList[T] = EmptyList) extends MyList[T] {
 
   override def ++[S >: T](x: MyList[S]): MyList[S] = Cons[S](h, t ++ x)
 
-  override def flatmap[B](transform: T ⇒ MyList[B]): MyList[B] =
-    transform.apply(head) ++ tail.flatmap(transform)
+  override def flatMap[B](transform: T ⇒ MyList[B]): MyList[B] =
+    transform.apply(head) ++ tail.flatMap(transform)
 
   override def foreach(action: T ⇒ Unit): Unit = {
     action(head)
@@ -139,7 +138,7 @@ object TestList extends App {
   println(combined)
   println(combined.map(x ⇒ x * 2))
   //creates a list of (n,n+1) for each element
-  println(combined.flatmap(x ⇒ x :: x + 1 :: EmptyList))
+  println(combined.flatMap(x ⇒ x :: x + 1 :: EmptyList))
 
   intList1.foreach(println)
   val unsorted: MyList[Int] = intList2 ++ intList1
@@ -147,4 +146,12 @@ object TestList extends App {
   println(unsorted.insertionSort((x, y) ⇒ x - y))
   println(nameList.zipWith[Int, String](intList1, _ + ":" + _))
   println(intList1.fold(0)(_ + _))
+
+  println("supports for-comprehension (map,flatMap,filter are exists) the exact signature is important")
+  println(
+            for {
+            a← intList1
+            b← intList2
+          } yield a+" "+b
+  )
 }

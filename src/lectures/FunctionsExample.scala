@@ -66,4 +66,5 @@ object FunctionsExample extends App{
 
   def andThen[A,B,C](f: A ⇒ B , g:B⇒C ): A⇒C = x⇒ g(f(x))
 
+
 }
