@@ -28,4 +28,5 @@ object MaybeTest extends App{
   val someValue= SomeMaybe(3)
   println(someValue.map(_*2).flatMap(x ⇒ SomeMaybe(x+5)))
   println(someValue.map(_*2).flatMap(x ⇒ SomeMaybe(x+5)).filter(_%2==0))
+
 }
