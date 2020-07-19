@@ -17,4 +17,22 @@ object PatternMatching extends App{
 
   println(evaluateExpression(Sum(Product(Number(2),Number(3)),Number(5))))
 
+  val tuple= ("one","two")
+  val (a,b) = tuple
+  println(a+" and "+b)
+
+  val list= List(1,2,3,4)
+  val head :: tail = list
+  println(head)
+  println(tail)
+
+  //partial function literal
+  val mappedList=list.map{
+    case 1 ⇒ "one"
+    case 2 ⇒ "two"
+    case 3⇒ "three"
+    case _ ⇒ "other"
+  }
+  println(mappedList) //List(one, two, three, other)
+
 }
